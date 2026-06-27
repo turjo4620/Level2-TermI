@@ -37,7 +37,17 @@ public:
 
     int primMST(){
         vector<bool>inMST(V, false);
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
+        // priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
+
+        // max heap
+        // min heap -> greater pass
+        // priority_queue<int, vector<int>, greater<int>>pq;
+
+        priority_queue<pair<int ,int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
+
+        
+
+
         int mstCost = 0, cnt = 0;
 
         pq.push({0, 0}); // source node -> {wt, vertex}
