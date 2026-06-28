@@ -74,7 +74,9 @@ void dijsktra(int src, vector<vector<Edge>>g, int V){
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
     // <dist[u], u>
 
+    vector<int>parent(V, -1);
     pq.push({0, src});
+
 
     while(pq.size() > 0){
         int u = pq.top().second;
@@ -84,6 +86,7 @@ void dijsktra(int src, vector<vector<Edge>>g, int V){
             // edge relaxation step
             if (dist[e.v] > dist[u] + e.wt){
                 dist[e.v] = dist[u] + e.wt;
+                parent[e.v] = u;
                 pq.push({dist[e.v], e.v});
             }    
         }
@@ -93,26 +96,24 @@ void dijsktra(int src, vector<vector<Edge>>g, int V){
         cout<<dist[i]<<" ";
     }
     cout<<endl;
+    for(int i : parent){
+        cout<<i<<" ";
+    }
+    cout<<endl;
+
 }
 
 int main(){
-    int V = 6;
-    vector<vector<Edge>>g(V);
+    int n, m;
+    cin>>n>>m;
+    vector<vector<Edge>>g(n);
 
-    g[0].push_back(Edge(1, 2));
-    g[0].push_back(Edge(2, 4));
-
-    g[1].push_back(Edge(2, 1));
-    g[1].push_back(Edge(3, 7));
-
-    g[2].push_back(Edge(4, 3));
-
-    g[3].push_back(Edge(5, 1));
-
-    g[4].push_back(Edge(3, 2));
-    g[4].push_back(Edge(5, 5));
-    
-    dijsktra(0, g, V);
+    for(int i = 0; i < m; i++){
+        int a, b, c;
+        cin>>a>>b>>c;
+        g[a - 1].push_back(Edge(b - 1, c));
+    }
+    dijsktra(0, g, n);
     return 0;
 }
 
