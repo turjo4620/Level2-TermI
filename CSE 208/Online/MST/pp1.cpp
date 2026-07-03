@@ -1,10 +1,6 @@
 
 /*
-একদম ঠিক ধরেছ! প্রথম প্রবলেমটার লজিক ঠিক ওইটাই—একটা জিরো (0) নোড নিয়ে সবগুলোর সাথে কস্ট অনুযায়ী কানেক্ট করে ক্রুস্কাল চালিয়ে দেওয়া।
-
-নিচে তোমার জন্য দ্বিতীয় প্রবলেমটির (Pre-existing Connections) একটি স্ট্যান্ডার্ড প্রবলেম স্টেটমেন্ট দেওয়া হলো। তুমি এটি তোমার টেম্পলেট দিয়ে সলভ করার চেষ্টা করতে পারো:
-
-### Problem 2: Rebuilding the Archipelago
+Problem 2: Rebuilding the Archipelago
 
 **Problem Statement**
 A massive storm has recently swept through an archipelago consisting of `N` islands. Before the storm, there were many bridges connecting the islands. After the storm, only `K` bridges survived and are still fully functional.

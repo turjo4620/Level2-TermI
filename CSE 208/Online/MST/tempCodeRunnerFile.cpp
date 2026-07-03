@@ -1,1 +1,0 @@
-rsukal()) << endl;
