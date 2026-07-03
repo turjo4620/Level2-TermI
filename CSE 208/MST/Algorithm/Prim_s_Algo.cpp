@@ -46,11 +46,13 @@ public:
         priority_queue<pair<int ,int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
 
         
-
+        vector<int>key(V, INT_MAX);
+        vector<int>parent(V, -1);
 
         int mstCost = 0, cnt = 0;
 
         pq.push({0, 0}); // source node -> {wt, vertex}
+        key[0] = 0;
 
         while(pq.size() > 0){
             auto p = pq.top();
@@ -67,7 +69,9 @@ public:
                     int v = adj[u][i].first;
                     int w = adj[u][i].second;
 
-                    if(!inMST[v]){
+                    if(!inMST[v] && w < key[v]){
+                        key[v] = w;
+                        parent[v] = u;
                         pq.push({w, v});
                     }
                 }
@@ -162,3 +166,5 @@ public:
     }
 }
 */
+
+
