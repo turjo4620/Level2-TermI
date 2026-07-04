@@ -62,17 +62,174 @@ Input Output
 7 12 11 */
 
 
+// #include <bits/stdc++.h>
+
+// using namespace std;
+// using ll = long long;
+
+// class Planet {
+// public:
+//     int id;
+//     ll x, y, z;
+    
+//     Planet(int id, ll x, ll y, ll z) {
+//         this->id = id;
+//         this->x = x;
+//         this->y = y;
+//         this->z = z;
+//     }
+// };
+
+//     bool compX(const Planet &a, const Planet &b){ return a.x < b.x;}
+//     bool compY(const Planet &a, const Planet &b){ return a.y < b.y;}
+//     bool compZ(const Planet &a, const Planet &b){ return a.z < b.z;}
+
+
+
+
+// class Edge{
+// public:
+//     int u, v;
+//     ll wt;
+    
+//     Edge(int u , int v, ll wt){
+//         this->u = u;
+//         this->v = v;
+//         this->wt = wt;
+//     }
+
+//     bool operator <(const Edge &other) const{
+//         return this->wt < other.wt;
+//     }
+// };
+
+// class Graph{
+// public:
+//     int V;
+//     vector<Edge>edges;
+//     vector<int>par, rank;
+
+//     Graph(int V){
+//         this->V = V;
+
+//         // for 1 based indexing
+//         for(int i = 0; i <= V; i++){
+//             par.push_back(i);
+//             rank.push_back(0);
+//         }
+//     }
+//     void addEdge(int u, int v, ll wt){
+//         edges.push_back(Edge(u, v, wt));
+//     }
+
+
+//     // find function
+
+//     int find(int x){
+//         if(par[x] == x){
+//             return x;
+//         }
+//         // path compression
+//         return par[x]= find(par[x]);
+//     }
+
+//     // union by rank
+
+//     bool unionByRank(int u, int v){
+//         int parA = find(u);
+//         int parB = find(v);
+
+//         if(parA == parB) return false;
+//         if(rank[parA] == rank[parB]){
+//             par[parB] = parA;
+//             rank[parA]++;    
+//         }
+//         else if(rank[parA] > rank[parB]){
+//             par[parB] = parA;
+//         }
+//         else{
+//             par[parA] = parB;
+//         }
+//         return true;
+//     }
+
+//     ll krsukal(){
+//         sort(edges.begin(), edges.end()); // O(ElogE)
+//         ll mstCost = 0;
+
+//         int count = 0;
+
+//         for(auto &e : edges){
+//             if(unionByRank(e.u, e.v)){
+//                 mstCost+=e.wt;
+//                 count++;
+//                 if(count == V - 1) break;
+//             }
+//         }
+//         return mstCost;
+//     }
+
+
+// };
+
+
+// int main(){
+    
+//     int n;
+//     cin>>n;
+//     Graph graph(n);
+    
+//     vector<Planet>planets;
+
+//     for(int i = 0; i < n; i++){
+//         ll x, y, z; 
+//         cin>>x>>y>>z;
+//         planets.push_back(Planet(i + 1, x, y, z));
+//     }
+
+//     sort(planets.begin(), planets.end(), compX);
+//     for(int i = 0; i < n - 1; i++){
+//         ll cost = abs(planets[i].x - planets[i + 1].x);
+//         graph.addEdge(planets[i].id, planets[i + 1].id, cost);
+//     }
+//     sort(planets.begin(), planets.end(), compY);
+//     for(int i = 0; i < n - 1; i++){
+//         ll cost = abs(planets[i].y - planets[i + 1].y);
+//         graph.addEdge(planets[i].id, planets[i + 1].id, cost);
+//     }
+//     sort(planets.begin(), planets.end(), compZ);
+//     for(int i = 0; i < n - 1; i++){
+//         ll cost = abs(planets[i].z - planets[i + 1].z);
+//         graph.addEdge(planets[i].id, planets[i + 1].id, cost);
+//     }
+
+//     cout<<graph.krsukal()<<"\n";
+
+
+
+
+
+    
+
+
+//     graph.krsukal();
+
+//     return 0;
+// }
+
+
 #include <bits/stdc++.h>
 
 using namespace std;
 using ll = long long;
 
-class Planet {
+
+class Planet{
 public:
-    int id;
     ll x, y, z;
-    
-    Planet(int id, ll x, ll y, ll z) {
+    int id;
+
+    Planet(int id, ll x, ll y, ll z){
         this->id = id;
         this->x = x;
         this->y = y;
@@ -80,16 +237,15 @@ public:
     }
 };
 
-    bool compX(const Planet &a, const Planet &b){ return a.x < b.x;}
-    bool compY(const Planet &a, const Planet &b){ return a.y < b.y;}
-    bool compZ(const Planet &a, const Planet &b){ return a.z < b.z;}
-
-
+    bool compX(Planet &a, Planet &b){ return a.x < b.x;}
+    bool compY(Planet &a, Planet &b){ return a.y < b.y;}
+    bool compZ(Planet &a, Planet &b){ return a.z < b.z;}
+    
 
 
 class Edge{
 public:
-    int u, v;
+    int u, v; 
     ll wt;
     
     Edge(int u , int v, ll wt){
@@ -107,18 +263,17 @@ class Graph{
 public:
     int V;
     vector<Edge>edges;
-    vector<int>par, rank;
+    vector<int>par, rnk;
 
     Graph(int V){
         this->V = V;
 
-        // for 1 based indexing
-        for(int i = 0; i <= V; i++){
+        for(int i = 0; i < V; i++){
             par.push_back(i);
-            rank.push_back(0);
+            rnk.push_back(0);
         }
     }
-    void addEdge(int u, int v, ll wt){
+    void addEdge(ll u, ll v, ll wt){
         edges.push_back(Edge(u, v, wt));
     }
 
@@ -135,38 +290,42 @@ public:
 
     // union by rank
 
-    bool unionByRank(int u, int v){
-        int parA = find(u);
-        int parB = find(v);
+    bool unionByRank(int u, int v) {
+    int parA = find(u);
+    int parB = find(v);
 
-        if(parA == parB) return false;
-        if(rank[parA] == rank[parB]){
-            par[parB] = parA;
-            rank[parA]++;    
+    if (parA == parB)
+        return false;
+
+    if (rnk[parA] == rnk[parB]) {
+        par[parB] = parA;
+        rnk[parA]++;
         }
-        else if(rank[parA] > rank[parB]){
-            par[parB] = parA;
+    else if (rnk[parA] > rnk[parB]) {
+        par[parB] = parA;
         }
-        else{
-            par[parA] = parB;
+    else {
+        par[parA] = parB;
         }
+
         return true;
     }
-
-    ll krsukal(){
+    void krsukal(){
         sort(edges.begin(), edges.end()); // O(ElogE)
         ll mstCost = 0;
 
         int count = 0;
 
-        for(auto &e : edges){
-            if(unionByRank(e.u, e.v)){
-                mstCost+=e.wt;
+        for (const Edge &e : edges) {
+            if (unionByRank(e.u, e.v)) {
+                mstCost += e.wt;
                 count++;
-                if(count == V - 1) break;
+
+            if (count == V - 1)
+                break;
             }
         }
-        return mstCost;
+        cout<<"MST cost: "<<mstCost<<endl;
     }
 
 
@@ -178,13 +337,13 @@ int main(){
     int n;
     cin>>n;
     Graph graph(n);
-    
+
     vector<Planet>planets;
 
     for(int i = 0; i < n; i++){
-        ll x, y, z; 
-        cin>>x>>y>>z;
-        planets.push_back(Planet(i + 1, x, y, z));
+        ll p, q, r;
+        cin>>p>>q>>r;
+        planets.push_back(Planet(i, p, q, r));
     }
 
     sort(planets.begin(), planets.end(), compX);
@@ -202,15 +361,6 @@ int main(){
         ll cost = abs(planets[i].z - planets[i + 1].z);
         graph.addEdge(planets[i].id, planets[i + 1].id, cost);
     }
-
-    cout<<graph.krsukal()<<"\n";
-
-
-
-
-
-    
-
 
     graph.krsukal();
 

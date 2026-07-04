@@ -84,9 +84,9 @@ using namespace std;
 class Edge{
 public:
     int u, v;
-    ll wt;
+    double wt;
     
-    Edge(int u , int v, ll wt){
+    Edge(int u , int v, double wt){
         this->u = u;
         this->v = v;
         this->wt = wt;
@@ -117,7 +117,7 @@ public:
     vector<Edge>edges;
     vector<int>par, rnk;
 
-    // for second best mst
+   
     vector<Edge>mstedges;
 
 
@@ -129,7 +129,7 @@ public:
             rnk.push_back(0);
         }
     }
-    void addEdge(int u, int v, int wt){
+    void addEdge(int u, int v, double wt){
         edges.push_back(Edge(u, v, wt));
     }
 
@@ -164,9 +164,9 @@ public:
         }
     }   
 
-    ll krsukal(){
+    double krsukal(){
         sort(edges.begin(), edges.end()); // O(ElogE)
-        ll mstCost = 0;
+        double mstCost = 0;
 
         int count = 0;
 
@@ -180,7 +180,7 @@ public:
                 unionByRank(e.u, e.v);
                 mstCost += e.wt;
 
-                mstedges.push_back(e);
+                mstedges.push_back(e); // direct edge gulakei push kore dibo done
 
                 
                 
@@ -193,8 +193,8 @@ public:
 
 };
 
-ll cost_calculator(int x1, int x2, int y1, int y2){
-    return (ll)sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
+double cost_calculator(int x1, int x2, int y1, int y2){
+    return sqrt((1.0 * (x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)  * 1.0));
 }
 
 
@@ -219,10 +219,10 @@ int main(){
         }
     }
 
-    ll mstCost = graph.krsukal();
+    double mstCost = graph.krsukal();
 
     int count = 0;
-    ll road_length = 0, rail_length = 0;
+    double road_length = 0, rail_length = 0;
     for(Edge e : graph.mstedges){
         if(e.wt > td) {
             count++;
@@ -235,7 +235,7 @@ int main(){
 
 
 
-    cout<<count+1<<" "<<road_length<<" "<<rail_length<<endl;
+    cout<<count+1<<" "<<(ll)road_length<<" "<<(ll)rail_length<<endl;
 
 
 
