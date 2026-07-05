@@ -50,45 +50,43 @@ Sample Output 2
 
 
 #include <bits/stdc++.h>
-using ll = long long;
-
 using namespace std;
+using ll = long long;
 
 class Edge{
 public:
     int u, v;
     ll wt;
-    ll cost;
     
     Edge(int u , int v, ll wt){
         this->u = u;
         this->v = v;
         this->wt = wt;
-        this->cost = log(wt);
     }
 
-    // cost er basis e sorting hobe ->> product to oijonno
-
     bool operator <(const Edge &other) const{
-        return this->cost < other.cost;
+        return this->wt < other.wt;
     }
 };
 
 
+bool clean_dfs(int curr, int parent, int target, ll new_wt, ll &max_edge_in_path, vector<vector<pair<int, ll>>>& adj) {
+    if (curr == target) return true;
 
-// second best mst ber korte hoile mst path e max edge ber kore kore remove kora lage and check kroa lage
+    for (auto p : adj[curr]) {
+        int next_node = p.first;
+        ll edge_weight = p.second;
 
-int dfs(int u, int parent, int target, int maxEdge, vector<vector<pair<int, int>>>&adj){
-    if(u == target) return maxEdge;
+        if (next_node == parent) continue; 
 
-    for(auto p : adj[u]){
-        if(p.first == parent){
-            continue;
+        if (clean_dfs(next_node, curr, target, new_wt, max_edge_in_path, adj)) {
+            if (edge_weight < new_wt) {
+                max_edge_in_path = max(max_edge_in_path, edge_weight);
+            }
+            return true; 
         }
-        int res = dfs(p.first, u, target, max(maxEdge, p.second), adj);
-        if(res != -1) return res;
     }
-    return -1;
+    return false; 
 }
 
 class Graph{
@@ -97,36 +95,28 @@ public:
     vector<Edge>edges;
     vector<int>par, rnk;
 
-    // for second best mst
     vector<Edge>mstedges;
-    vector<vector<pair<int, int>>>adj;
-
+    vector<vector<pair<int, ll>>>adj;
 
     Graph(int V){
         this->V = V;
-
         for(int i = 0; i < V; i++){
             par.push_back(i);
             rnk.push_back(0);
         }
         adj.resize(V);
     }
-    void addEdge(int u, int v, int wt){
+    
+    void addEdge(int u, int v, ll wt){
         edges.push_back(Edge(u, v, wt));
     }
-
-
-    // find function
 
     int find(int x){
         if(par[x] == x){
             return x;
         }
-        // path compression
         return par[x]= find(par[x]);
     }
-
-    // union by rank
 
     void unionByRank(int u, int v){
         int pu = find(u);
@@ -146,10 +136,10 @@ public:
         }
     }   
 
-    ll krsukal(){
-        sort(edges.begin(), edges.end()); // O(ElogE)
-        ll mstCost = 0;
-
+    ll kruskal(){
+        sort(edges.begin(), edges.end()); 
+        
+        ll mstCost = 1;
         int count = 0;
 
         for(int i = 0; i < edges.size(); i++){
@@ -158,76 +148,79 @@ public:
             int parU = find(e.u);
             int parV = find(e.v);
 
-            if(parU != parV){ // no cycle
+            if(parU != parV){ 
                 unionByRank(e.u, e.v);
                 
-                mstCost += e.cost;
+                mstCost *= e.wt; 
+                count++;
 
                 mstedges.push_back(e);
-
-                adj[e.u].push_back({e.v, e.cost});
-                adj[e.v].push_back({e.u, e.cost});
-
-                count++;
-                if(count == V - 1) break;
-                
+                adj[e.u].push_back({e.v, e.wt});
+                adj[e.v].push_back({e.u, e.wt});
             }
-
         }
+        
+
+        if(count != V - 1) return -1;
+        
         return mstCost;
     }
-
-
 };
 
-
 int main(){
-    
-    int m, n;
-    cin>>m>>n;
-    Graph graph(m);
-    
+    int n, m;
 
-    // ll total_cost = 0;
-    for(int i = 0; i < n; i++){
+    if (!(cin >> n >> m)) return 0;
+    
+    Graph graph(n);
+    
+    for(int i = 0; i < m; i++){
         int p, q;
         ll r;
-        cin>>p>>q>>r;
-        // 1 based
-        p--; q--;
-        // total_cost += r;
+        cin >> p >> q >> r;
+        // 0-based indexing
+        p--; q--; 
         graph.addEdge(p, q, r);
     }
 
-    ll mstCost = graph.krsukal();
+    ll mstCost = graph.kruskal();
+    
+  
+    if (mstCost == -1) {
+        cout << -1 << "\n";
+        return 0;
+    }
 
-    ll seondBest = LLONG_MAX;
+    ll secondBest = LLONG_MAX;
 
     for(auto &e : graph.edges){
-        bool inMst = false;
+        bool InMST = false;
 
-        for(auto &x : graph.mstedges){
-            if(e.u == x.u && e.v == x.v && e.wt == x.wt){
-                inMst = true;
+        for(auto & x : graph.mstedges){
+            if(x.u == e.u && x.v == e.v && x.wt == e.wt){
+                InMST = true;
+                break;
             }
         }
 
-        if(inMst) continue;
+        if(InMST) continue;
 
-        // dfs(int u, int parent, int target, int maxEdge, vector<vector<pair<int, int>>>&adj)
-        int mx = dfs(e.u, -1, e.v, 0, graph.adj);
+        ll mx = -1; 
+        clean_dfs(e.u, -1, e.v, e.wt, mx, graph.adj);
 
-        if(mx == -1) continue;
+        if(mx == -1) continue; 
 
-        ll newcost = mstCost - mx + e.cost;
 
-        if(newcost > mstCost){
-            seondBest = min(newcost, seondBest);
+        ll newCost = (mstCost / mx) * e.wt;
+
+  
+        if (newCost > mstCost) {
+            secondBest = min(secondBest, newCost);
         }
     }
 
-    if(seondBest == LLONG_MAX) cout << -1;
-    else cout << (long long)exp(seondBest);
+    if (secondBest == LLONG_MAX) cout << -1 << "\n";
+    else cout << secondBest << "\n";
 
     return 0;
 }
