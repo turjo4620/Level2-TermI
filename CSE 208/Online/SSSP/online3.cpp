@@ -78,7 +78,6 @@ struct Edge {
 vector<ll> dijkstra(int src, const vector<vector<Edge>>& g, vector<ll> &parent, vector<ll> &total_time) {
     int n = g.size();
     vector<ll> dist(n, INF);
-    vector<ll> min_cost(n, INF);
     
 
     priority_queue<pair<ll,int>, vector<pair<ll,int>>, greater<pair<ll,int>>> pq;

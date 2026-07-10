@@ -21,7 +21,7 @@ vector<ll> dijkstra(int src, const vector<vector<Edge>>& g) {
 
     while (!pq.empty()) {
         auto p = pq.top();
-        int d = p.first;
+        ll d = p.first;
         int u = p.second;
         pq.pop();
 
