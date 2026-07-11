@@ -118,28 +118,50 @@ public:
 
         // dist[src] = 0;
 
+        // for(int i = 0; i < K; i++){
+
+        //     vector<vector<long long>> curr_dist = prev_dist;
+
+        //     for(Edge e : edges){
+        //         int u = e.u;
+        //         int v = e.v;
+        //         ll w = e.wt;
+
+        //         if(prev_dist[u][0] != INF){
+        //             curr_dist[v][0] = min(prev_dist[u][0] + w, curr_dist[v][0]);
+        //         }
+
+        //         if(prev_dist[u][1] != INF){
+        //             curr_dist[v][1] = min(prev_dist[u][1] + w, curr_dist[v][1]);
+        //         }
+        //         if(prev_dist[u][0] != INF){
+        //             curr_dist[v][1] = min(prev_dist[u][0] + (w / 2), curr_dist[v][1]);
+        //         }
+
+        //     }   
+        //     prev_dist = curr_dist;
+        // }
+
         for(int i = 0; i < K; i++){
-
-            vector<vector<long long>> curr_dist = prev_dist;
-
-            for(Edge e : edges){
+            vector<vector<ll>>curr = prev_dist;
+            for(Edge &e : edges){
                 int u = e.u;
                 int v = e.v;
-                ll w = e.wt;
+                ll wt = e.wt;
 
-                if(prev_dist[u][0] != INF){
-                    curr_dist[v][0] = min(prev_dist[u][0] + w, curr_dist[v][0]);
+                if(curr[v][0] != INF){
+                    curr[v][0] = min(prev_dist[u][0] + wt, curr[v][0]);
                 }
 
-                if(prev_dist[u][1] != INF){
-                    curr_dist[v][1] = min(prev_dist[u][1] + w, curr_dist[v][1]);
-                }
-                if(prev_dist[u][0] != INF){
-                    curr_dist[v][1] = min(prev_dist[u][0] + (w / 2), curr_dist[v][1]);
+                if(curr[v][0] != INF){
+                    curr[v][1] = min(prev_dist[u][0] + (wt / 2), curr[v][1]);
                 }
 
-            }   
-            prev_dist = curr_dist;
+                if(curr[v][1] != INF){
+                    curr[v][1] = min(prev_dist[u][1] + wt, curr[v][1]);
+                }
+            }
+            prev_dist = curr;
         }
 
         // for(Edge e: edges){
@@ -184,3 +206,5 @@ int main(){
 
     return 0;
 }
+
+

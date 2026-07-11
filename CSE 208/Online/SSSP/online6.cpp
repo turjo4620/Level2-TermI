@@ -174,5 +174,18 @@ int main() {
     // }
     // cout << "\n";
 
+    // for(int i = 0; i < num_stu; i++){
+    //     bool found = false;
+    //     for(auto &p : available_labs){
+    //         ll cost = p.first;
+    //         if(capacity[p.second] > 0){
+    //             cout<<cost<<" ";
+    //             capacity[p.first] --;
+    //             found = true;
+    //             break;
+    //         }
+    //     }
+    // }
+
     return 0;
 }

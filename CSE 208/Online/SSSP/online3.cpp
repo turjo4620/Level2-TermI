@@ -102,9 +102,9 @@ vector<ll> dijkstra(int src, const vector<vector<Edge>>& g, vector<ll> &parent, 
 
 
 
-            if (dist[u] + cost < dist[v]) {
+            if (dist[u] != INF && dist[u] + cost < dist[v]) {
                 dist[v] = dist[u] + cost;
-                total_time[v] = total_time[u] + e.tt + (u == src ? 0 : 1);
+                total_time[v] = total_time[u] + e.tt + wait_time;
                 parent[v] = u;
                 pq.push({dist[v], v});
             }
