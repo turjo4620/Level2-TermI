@@ -149,15 +149,15 @@ public:
                 int v = e.v;
                 ll wt = e.wt;
 
-                if(curr[v][0] != INF){
+                if(prev_dist[u][0] != INF){
                     curr[v][0] = min(prev_dist[u][0] + wt, curr[v][0]);
                 }
 
-                if(curr[v][0] != INF){
+                if(prev_dist[u][0] != INF){
                     curr[v][1] = min(prev_dist[u][0] + (wt / 2), curr[v][1]);
                 }
 
-                if(curr[v][1] != INF){
+                if(prev_dist[u][1] != INF){
                     curr[v][1] = min(prev_dist[u][1] + wt, curr[v][1]);
                 }
             }
