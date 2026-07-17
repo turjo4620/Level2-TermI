@@ -32,7 +32,7 @@ public:
         edges.push_back(Edge(u, v,wt));
     }
 
-    void floydWarshall(){
+    void floydWarshall(vector<vector<int>>&query, int m, int n){
         vector<vector<ll>>dist(V, vector<ll>(V, INF));
         
         for(int i = 0; i < V; i++){
@@ -53,16 +53,30 @@ public:
             }
         }
 
-        for(int i = 0; i < V; i++){
-            for(int j =0; j < V; j++){
-                if(dist[i][j] == INF){
-                    cout<<"INF ";
-                }
-                else{
-                    cout<<dist[i][j]<<" ";
-                }
-            }
-            cout<<endl;
+        // for(int i = 0; i < V; i++){
+        //     for(int j =0; j < V; j++){
+        //         if(dist[i][j] == INF){
+        //             cout<<"INF ";
+        //         }
+        //         else{
+        //             cout<<dist[i][j]<<" ";
+        //         }
+        //     }
+        //     cout<<endl;
+        // }
+
+        for(int i = 0 ; i < query.size(); i++){
+            int u = query[i][0];
+            int v = query[i][1];
+
+            ll ans = min(dist[u][m] + dist[m][v], dist[u][n] + dist[n][v]);
+            if(ans >= INF)
+            cout<<-1<<endl;
+            
+            else
+            cout<<ans<<endl;
+
+            
         }
     }
 };
@@ -82,8 +96,19 @@ int main() {
         cin >> p >> q >> r;
         graph.addEdge(p, q, r);
     }
+    int w, x;
+    cin>>w>>x;
 
-    graph.floydWarshall();
+    int a;
+    cin>>a;
+    vector<vector<int>>query(a, vector<int>(2));
+    for(int i = 0; i < a; i++){
+        for(int j = 0; j < 2; j++){
+            cin>>query[i][j];
+        }
+    }
+
+    graph.floydWarshall(query, w, x);
 
     return 0;
 }
