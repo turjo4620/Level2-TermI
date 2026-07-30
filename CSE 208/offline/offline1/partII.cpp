@@ -13,10 +13,12 @@ struct flight{
 
 
 bool bfs_helper(vector<vector<int>>&adj, int src, int sink, vector<vector<ll>>&res_capacity, vector<int>&parent){
+    
+    fill(parent.begin(), parent.end(), -1);
     queue<int>q;
     q.push(src);
 
-    parent[src] = -1;
+    // parent[src] = -1;
 
     vector<bool>visited(adj.size());
 
@@ -129,15 +131,13 @@ int main(){
         }
 
 
-        for(int i = 1; i <= n; i++){
-            for(int j = 1; j <= n; j++){
-                if(i==j)continue;
-                if((flights[i - 1].arrival_city == flights[j - 1].departure_city) && flights[i - 1].arrival_time + 180 <= flights[j - 1].departure_time){
-                    adj[i].push_back(j + n);
-                    adj[j + n].push_back(i);
+        for(int i = 0; i < n; i++){
+            for(int j : adj_for_dag[i]){
 
-                    res_cap[i][j+n] = 1;
-                }
+                adj[i + 1].push_back(j + n + 1);
+                adj[j + n + 1].push_back(i + 1);
+
+                res_cap[i + 1][j + n + 1] = 1;
             }
         }
 
@@ -148,7 +148,7 @@ int main(){
         
 
         vector<int>next(n + 1, -1);
-        vector<int>prev(n + 1, false);
+        vector<bool>prev(n + 1, false);
 
         for(int i = 1; i <= n; i++){
             for(int v : adj[i]){
@@ -166,7 +166,7 @@ int main(){
                 int curr = i;
                 while(curr != -1){
                     cout<<flights[curr - 1].flight_id;
-                    if(next[curr] != -1) cout<<"->";
+                    if(next[curr] != -1) cout<<" -> ";
                     curr = next[curr];
                 }
                 count++;

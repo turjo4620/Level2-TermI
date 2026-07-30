@@ -39,6 +39,8 @@ bool bfs_helper(vector<vector<int>>&adj, int src, int sink, vector<vector<ll>>&r
 
 ll edmonds_karp_algorithm(int V, int src, int sink, vector<vector<ll>>&res_capacity, vector<vector<int>>&adj){
 
+    if(src == sink) return 0;
+    
     ll total_flow = 0;
 
     vector<int>parent(V, -1);
