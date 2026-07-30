@@ -11,10 +11,9 @@ using ll = long long;
 
 
 bool bfs_helper(vector<vector<int>>&adj, int src, int sink, vector<vector<ll>>&res_capacity, vector<int>&parent){
+    fill(parent.begin(), parent.end(), -1);
     queue<int>q;
     q.push(src);
-
-    parent[src] = -1;
 
     vector<bool>visited(adj.size());
 
@@ -82,11 +81,13 @@ int main(){
     for(int i = 0; i < M; i++){
         int a, b;
         cin>>a>>b;
-        adj[a].push_back(b);
-        adj[b].push_back(a);
+        if(res_cap[a][b] == 0){
+            adj[a].push_back(b);
+            adj[b].push_back(a);
+        }
         ll cap;
         cin>>cap;
-        res_cap[a][b] = cap;
+        res_cap[a][b] += cap;
     }
 
 
