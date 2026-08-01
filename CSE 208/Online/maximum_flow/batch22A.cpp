@@ -97,69 +97,94 @@ ll edmonds_karp_algorithm(int V, int src, int sink, vector<vector<ll>>&res_capac
     }
 
     return total_flow;
-    
-
 }
+
+
+    // path extraction
+    bool extract_path_dfs(int u, int sink, vector<vector<int>>& adj, vector<vector<ll>>& orig_cap, 
+                      vector<vector<ll>>& res_cap, vector<bool>& visited, vector<int>& path){
+
+            path.push_back(u);
+            if(u == sink){
+                return true;
+            }
+
+            visited[u] = true;
+
+            for(int v : adj[u]){
+                if(!visited[v] && (orig_cap[u][v] - res_cap[u][v] > 0)){
+                    if(extract_path_dfs(v, sink, adj, orig_cap, res_cap, visited, path)){
+                        return true;
+                    }
+                }
+            }
+
+            path.pop_back();
+            return false;
+        }
+
 
 
 int main(){
 
     int T;
     cin>>T;
-    int count = 0;
-    while(T--){
-    int N, M;
-    cin>>N>>M;
 
-    vector<vector<int>>adj(N);
-    vector<vector<ll>>res_cap(N, vector<ll>(N, 0));
+    for(int tc = 1; tc <= T; tc++){
+        int N, M;
+        cin>>N>>M;
 
-    for(int i = 0; i < M; i++){
-        int a, b;
-        cin>>a>>b;
-        a--; b--;
-        if(res_cap[a][b] == 0){
-            adj[a].push_back(b);
-            adj[b].push_back(a);
+        int s = N;
+        int src = 0;
+        int sink = N - 1;
+        vector<vector<int>> adj(s);
+        vector<vector<ll>> orig_cap(s, vector<ll>(s, 0)); // We need to remember original capacities
+        vector<vector<ll>> res_cap(s, vector<ll>(s, 0));
+
+
+    for (int i = 0; i < M; i++) {
+            int u, v;
+            cin >> u >> v;
+            u--; v--;
+            if (res_cap[u][v] == 0 && res_cap[v][u] == 0) {
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+            }
+            // Capacity is 1 per passage
+            orig_cap[u][v] += 1; 
+              res_cap[u][v] += 1;  
+        }   
+        
+        int max_flow = edmonds_karp_algorithm(s, src, sink, res_cap, adj);
+
+        cout << "Case " << tc << ": " << max_flow << "\n";
+
+        if(max_flow == 0){
+            cout<<"NONE"<<endl;
         }
-        res_cap[a][b] += 1;
-    }
+        else{
+            for(int i = 0; i < max_flow; i++){
+                vector<int>path;
+                vector<bool> visited(s, false);
+                
+                extract_path_dfs(src, sink, adj, orig_cap, res_cap, visited, path);
 
+                for(int j = 0; j < path.size(); j++){
+                    cout<<path[j] + 1;
+                    if(j < path.size() - 1) cout<<" -> ";
+                }
+                cout<<endl;
 
-    ll max_flow = edmonds_karp_algorithm(N, 0, N - 1, res_cap, adj);
-
-
-    cout<<"Case: "<<count+1;
-    if(max_flow > 0) cout<<max_flow<<endl;
-    else cout<<"No"<<endl;
-
-    count++;
-
-    vector<int>next(N,-1);
-    vector<bool>prev(N, false);
-
-    for(int i = 0; i < N; i++){
-        for(int v : adj[i]){
-            if(res_cap[i][v] != 1){
-                next[i] = v;
-                prev[v] = true;
+                // abar ager moto baniye fellam jate abar eita choose nah kore
+                for(int j = 0; j < path.size() - 1; j++){
+                    int u = path[j];
+                    int v = path[j + 1];
+                    res_cap[u][v]++;
+                }
             }
         }
     }
 
-    for(int i = 0; i < N; i++){
-        if(!prev[i]){
-            int curr = i;
-            while(curr != -1){
-                cout<< curr+1;
-                if(next[curr] != -1)cout<<" ->";
-                curr = next[curr];
-            }
-        }
-        cout<<'\n';
-    }
-
-}
     
     return 0;
 }
