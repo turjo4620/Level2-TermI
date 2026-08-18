@@ -44,55 +44,66 @@ WHERE SALARY >
 );
 
 /*
-3. Write a SQL query to find employees from the USA who have a manager (using EXISTS), no
-job_history records (using NOT EXISTS), and salary greater than their department average.
-Display full_name, salary, and use a CASE statement to label 'USA Star' if salary > 1.4 times
-department average, otherwise 'USA Above'.
+3. Find employees from the USA who:
+   - have a manager (using EXISTS)
+   - have no job_history records (using NOT EXISTS)
+   - have salary greater than their department average
+
+   Display:
+   - full_name
+   - salary
+   - CASE label:
+       'USA Star'  -> salary > 1.4 * department average
+       'USA Above' -> otherwise
 */
 
 SELECT 
-  E.FIRST_NAME || ' ' || E.LAST_NAME AS FULL_NAME,
-  E.SALARY,
-  CASE
-    WHEN E.SALARY >
-    (
-      SELECT AVG(E2.SALARY) * 1.4
-      FROM EMPLOYEES E2
-      WHERE E2.DEPARTMENT_ID = E.DEPARTMENT_ID
-    )
-    THEN 'USA STAR'
-    ELSE 'USA ABOVE'
-  END AS LABEL
+    E.FIRST_NAME || ' ' || E.LAST_NAME AS FULL_NAME,
+    E.SALARY,
+
+    CASE
+        WHEN E.SALARY >
+        (
+            SELECT AVG(E2.SALARY) * 1.4
+            FROM EMPLOYEES E2
+            WHERE E2.DEPARTMENT_ID = E.DEPARTMENT_ID
+        )
+        THEN 'USA Star'
+        ELSE 'USA Above'
+    END AS LABEL
+
 FROM EMPLOYEES E
-JOIN DEPARTMENTS D 
-ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
-JOIN LOCATIONS L 
-ON D.LOCATION_ID = L.LOCATION_ID
-JOIN COUNTRIES C 
-ON L.COUNTRY_ID = C.COUNTRY_ID
+
+JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+
+JOIN LOCATIONS L
+    ON D.LOCATION_ID = L.LOCATION_ID
+
+JOIN COUNTRIES C
+    ON L.COUNTRY_ID = C.COUNTRY_ID
 
 WHERE C.COUNTRY_NAME = 'United States of America'
 
 AND EXISTS
 (
-  SELECT EMPLOYEE_ID
-  FROM EMPLOYEES M 
-  WHERE M.EMPLOYEE_ID = E.MANAGER_ID
+    SELECT 1
+    FROM EMPLOYEES M
+    WHERE M.EMPLOYEE_ID = E.MANAGER_ID
 )
 
 AND NOT EXISTS
-
 (
-  SELECT EMPLOYEE_ID
-  FROM JOB_HISTORY JH 
-  WHERE JH.EMPLOYEE_ID = E.EMPLOYEE_ID
+    SELECT 1
+    FROM JOB_HISTORY JH
+    WHERE JH.EMPLOYEE_ID = E.EMPLOYEE_ID
 )
 
 AND E.SALARY >
 (
-  SELECT AVG(SALARY)
-  FROM EMPLOYEES E2
-  WHERE E2.DEPARTMENT_ID = E.DEPARTMENT_ID
+    SELECT AVG(E2.SALARY)
+    FROM EMPLOYEES E2
+    WHERE E2.DEPARTMENT_ID = E.DEPARTMENT_ID
 );
 
 
