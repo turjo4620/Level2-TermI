@@ -117,11 +117,10 @@ a. They report to a manager whose salary is greater than 15000.
 b. They work in a department located in 'Seattle'.
 */
 
-SELECT
+SELECT 
     E.EMPLOYEE_ID,
     E.FIRST_NAME,
     E.SALARY
-
 FROM EMPLOYEES E
 
 JOIN DEPARTMENTS D
@@ -135,11 +134,15 @@ JOIN LOCATIONS L
 
 WHERE
 (
-    (M.SALARY > 15000 AND L.CITY <> 'Seattle')
-
+    M.SALARY > 15000
     OR
-
-    (M.SALARY <= 15000 AND L.CITY = 'Seattle')
+    L.CITY = 'Seattle'
+)
+AND NOT
+(
+    M.SALARY > 15000
+    AND
+    L.CITY = 'Seattle'
 )
 
 ORDER BY
