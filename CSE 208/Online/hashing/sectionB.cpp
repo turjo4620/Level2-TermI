@@ -271,10 +271,12 @@ public:
 
             auto it = seperate_chain_table[index].begin();
 
-            while(it != seperate_chain_table[index].end()){
+            while (it != seperate_chain_table[index].end())
+            {
                 double current_weight = weight(it->key);
 
-                if(new_weight > current_weight){
+                if (new_weight > current_weight)
+                {
                     break;
                 }
                 it++;
@@ -551,6 +553,49 @@ public:
             return hits_count;
         }
     }
+
+    bool deleteLowestWeight()
+    {
+        if (method_type != 1 || num_elements == 0)
+            return false;
+
+        double min_weight = numeric_limits<double>::max(); // Start with maximum possible double
+        int target_index = -1;
+        typename list<hashdata<K, V>>::iterator target_it;
+
+        for (int i = 0; i < current_size; i++)
+        {
+            for (auto it = seperate_chain_table[i].begin(); it != seperate_chain_table[i].end(); ++it)
+            {
+
+                if (it->weight < min_weight)
+                {
+                    min_weight = it->weight;
+                    target_index = i;
+                    target_it = it;
+                }
+            }
+        }
+
+        if (target_index != -1)
+        {
+            seperate_chain_table[target_index].erase(target_it);
+            num_elements--;
+            delete_count++;
+
+            if (load_factor_calc() < load_cut_off.first && delete_count >= elemets_last_resize / 2)
+            {
+                int new_size = if_load_factor_falls();
+                if (current_size != initial_size)
+                {
+                    rehash(new_size);
+                    delete_count = 0;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 };
 
 string random_word_generator(int length)
@@ -626,20 +671,23 @@ int main()
         cout << v[i].first << " " << chain_hash1.hash1(v[i].first) << " " << v[i].second << endl;
     }
 
-
-    for(int i = 0; i < 12; i++){
-        for(hashdata<string, double> item : chain_hash1.seperate_chain_table[i]){
-            cout<<i<<" "<<item.key<<"("<<item.value<<")"<<"->";
+    for (int i = 0; i < 12; i++)
+    {
+        for (hashdata<string, double> item : chain_hash1.seperate_chain_table[i])
+        {
+            cout << i << " " << item.key << "(" << item.value << ")" << "->";
         }
-        cout<<endl;
+        cout << endl;
     }
 
-    for(int i = 0; i <= 12; i++){
-        if(chain_hash1.seperate_chain_table[i].size() == 0){
-            cout<<i<<",";
+    for (int i = 0; i <= 12; i++)
+    {
+        if (chain_hash1.seperate_chain_table[i].size() == 0)
+        {
+            cout << i << ",";
         }
     }
-    cout<<"empty";
+    cout << "empty";
 
     return 0;
 }

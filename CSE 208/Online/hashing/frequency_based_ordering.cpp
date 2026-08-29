@@ -464,6 +464,47 @@ public:
     }
    }
 
+   bool deleteLowestFrequency() {
+        if (method_type != 1 || num_elements == 0) return false;
+
+        int min_freq = INT_MAX;
+        int target_index = -1;
+        
+        // We must use 'typename' here because we are inside a template class
+        typename list<hashdata<K, V>>::iterator target_it; 
+
+        // Scan the entire 2D structure (Array of Linked Lists)
+        for (int i = 0; i < current_size; i++) {
+            for (auto it = seperate_chain_table[i].begin(); it != seperate_chain_table[i].end(); ++it) {
+                
+                // If we find a strictly smaller frequency, update our target markers
+                if (it->frequency < min_freq) {
+                    min_freq = it->frequency;
+                    target_index = i;
+                    target_it = it;
+                }
+            }
+        }
+
+        // If a valid target was found, erase it
+        if (target_index != -1) {
+            seperate_chain_table[target_index].erase(target_it);
+            num_elements--;
+            delete_count++;
+            
+            // Standard load factor check for deletion
+            if (load_factor_calc() < load_cut_off.first && delete_count >= elemets_last_resize / 2) {
+                int new_size = if_load_factor_falls();
+                if (current_size != initial_size) {
+                    rehash(new_size);
+                    delete_count = 0;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
 
 };
 
