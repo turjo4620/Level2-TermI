@@ -39,14 +39,14 @@ public:
     bool insert(int key, string value) {
 
         int index = hash_function(key);
-
         int first_deleted = -1;
 
         for (int i = 0; i < table_size; i++) {
 
-            int current = (index + i) % table_size;
+            // Quadratic probing
+            int current = (index + i * i) % table_size;
 
-            // Empty slot
+            // Empty slot found
             if (table[current].status == EMPTY) {
 
                 // Prefer previously found deleted slot
@@ -73,13 +73,13 @@ public:
                 continue;
             }
 
-            // Occupied slot
+            // Duplicate key
             if (table[current].key == key) {
                 return false;
             }
         }
 
-        // Table completely full
+        // No EMPTY slot found, but DELETED slot exists
         if (first_deleted != -1) {
 
             table[first_deleted].key = key;
@@ -101,19 +101,20 @@ public:
 
         for (int i = 0; i < table_size; i++) {
 
-            int current = (index + i) % table_size;
+            // Quadratic probing
+            int current = (index + i * i) % table_size;
 
-            // If EMPTY, key cannot exist further
+            // If EMPTY, key does not exist
             if (table[current].status == EMPTY) {
                 return false;
             }
 
-            // Ignore DELETED
+            // Ignore deleted slot
             if (table[current].status == DELETED) {
                 continue;
             }
 
-            // Check occupied slot
+            // Key found
             if (table[current].key == key) {
                 return true;
             }
@@ -129,19 +130,20 @@ public:
 
         for (int i = 0; i < table_size; i++) {
 
-            int current = (index + i) % table_size;
+            // Quadratic probing
+            int current = (index + i * i) % table_size;
 
-            // Stop at EMPTY
+            // If EMPTY, key does not exist
             if (table[current].status == EMPTY) {
                 return false;
             }
 
-            // Ignore DELETED
+            // Ignore deleted slot
             if (table[current].status == DELETED) {
                 continue;
             }
 
-            // Found key
+            // Key found
             if (table[current].key == key) {
 
                 table[current].status = DELETED;
@@ -180,13 +182,12 @@ public:
         }
     }
 
-
     bool update(int key, string new_value) {
 
         int index = hash_function(key);
     for (int i = 0; i < table_size; i++) {
 
-        int current = (index + i) % table_size;
+        int current = (index + i * i) % table_size;
 
         if (table[current].status == EMPTY) {
             return false;
@@ -209,25 +210,25 @@ public:
 
 int main() {
 
-    HashTable h(10);
+    HashTable h(11);
 
     h.insert(10, "Turjo");
-    h.insert(20, "Prince");
-    h.insert(30, "BUET");
-    h.insert(15, "CSE");
+    h.insert(21, "Prince");
+    h.insert(32, "BUET");
+    h.insert(43, "CSE");
 
     h.display();
 
     cout << endl;
 
-    if (h.search(20))
+    if (h.search(32))
         cout << "Found\n";
     else
         cout << "Not Found\n";
 
-    h.remove(20);
+    h.remove(21);
 
-    cout << endl;
+    cout << "\nAfter deletion:\n";
 
     h.display();
 

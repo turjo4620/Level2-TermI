@@ -98,6 +98,25 @@ public:
             cout << endl;
         }
     }
+
+
+bool update(int key, string new_value) {
+
+    int index = hash_function(key);
+
+    for (auto &item : table[index]) {
+
+        if (item.key == key) {
+
+            item.value = new_value;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 };
 
 
