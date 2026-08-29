@@ -1,0 +1,11 @@
+
+Word length = 10
+C1 = 1
+C2 = 1
+
+                         HASH TABLE PERFORMANCE REPORT                   
+                    Hash1                                   Hash2                                   
+                    Number of Collisions  Average Hits      Number of Collisions  Average Hits      
+Chaining Method     1342                  1.1370            1385                  1.1630            
+Double Hashing      1461                  1.1690            1533                  1.2010            
+Custom Probing      1474                  1.1830            1523                  1.2090    
