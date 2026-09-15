@@ -1,0 +1,157 @@
+-- FUNCTION TEMPLATE
+
+CREATE OR REPLACE FUNCTION FUNCTION_NAME (
+    P_PARAMETER1 IN DATATYPE,
+    P_PARAMETER2 IN DATATYPE
+)
+RETURN RETURN_DATATYPE
+IS
+    -- variables
+    V_VARIABLE1 DATATYPE;
+    V_VARIABLE2 DATATYPE;
+
+BEGIN
+
+    -- main logic
+
+    RETURN VALUE;
+
+EXCEPTION
+
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+
+    WHEN TOO_MANY_ROWS THEN
+        DBMS_OUTPUT.PUT_LINE('Too many rows.');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+END;
+/
+
+-- PROCEDURE TEMPLATE
+
+CREATE OR REPLACE PROCEDURE REPORT_NAME
+IS
+    V_RANK NUMBER := 0;
+BEGIN
+
+    FOR R IN (
+        SELECT COLUMN1,
+               COUNT(*) AS TOTAL,
+               AVG(SALARY) AS AVG_SALARY
+        FROM EMPLOYEES
+        GROUP BY COLUMN1
+        ORDER BY COUNT(*) DESC
+    )
+    LOOP
+
+        V_RANK := V_RANK + 1;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'Rank: ' || V_RANK ||
+            ' Value: ' || R.COLUMN1 ||
+            ' Total: ' || R.TOTAL
+        );
+
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+
+-- TRIGGER TEMPLATE
+
+-- FOR UPDATE
+
+CREATE OR REPLACE TRIGGER TRIGGER_NAME
+AFTER UPDATE OF COLUMN_NAME
+ON EMPLOYEES
+FOR EACH ROW
+
+DECLARE
+    V_VALUE1 NUMBER;
+    V_VALUE2 NUMBER;
+
+BEGIN
+
+    IF :OLD.COLUMN_NAME <> :NEW.COLUMN_NAME THEN
+
+        -- find old information
+
+        SELECT ...
+        INTO V_VALUE1
+        FROM ...
+        WHERE ...;
+
+        -- find new information
+
+        SELECT ...
+        INTO V_VALUE2
+        FROM ...
+        WHERE ...;
+
+        -- perform calculation
+
+        -- UPDATE something
+
+        -- INSERT log
+
+    END IF;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+END;
+/
+
+-- INSERT 
+
+CREATE OR REPLACE TRIGGER TRIGGER_NAME
+AFTER INSERT
+ON EMPLOYEES
+FOR EACH ROW
+
+BEGIN
+
+    INSERT INTO LOG_TABLE (
+        EMPLOYEE_ID,
+        ACTION_DATE
+    )
+    VALUES (
+        :NEW.EMPLOYEE_ID,
+        SYSDATE
+    );
+
+END;
+/
+
+
+-- DELETE TRIGGER
+
+CREATE OR REPLACE TRIGGER TRIGGER_NAME
+AFTER DELETE
+ON EMPLOYEES
+FOR EACH ROW
+
+BEGIN
+
+    INSERT INTO LOG_TABLE (
+        EMPLOYEE_ID,
+        ACTION_DATE
+    )
+    VALUES (
+        :OLD.EMPLOYEE_ID,
+        SYSDATE
+    );
+
+END;
+/
