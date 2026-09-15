@@ -1,0 +1,248 @@
+CREATE OR REPLACE FUNCTION IS_READY_FOR_PROMOTION (
+    P_EMPLOYEE_ID IN EMPLOYEES.EMPLOYEE_ID%TYPE
+)
+RETURN VARCHAR2
+IS
+    V_HIRE_DATE      EMPLOYEES.HIRE_DATE%TYPE;
+    V_SALARY         EMPLOYEES.SALARY%TYPE;
+    V_MIN_SALARY     JOBS.MIN_SALARY%TYPE;
+    V_MAX_SALARY     JOBS.MAX_SALARY%TYPE;
+    V_SUBORDINATES   NUMBER;
+BEGIN
+
+    -- Get employee information
+    SELECT E.HIRE_DATE,
+           E.SALARY,
+           J.MIN_SALARY,
+           J.MAX_SALARY
+    INTO V_HIRE_DATE,
+         V_SALARY,
+         V_MIN_SALARY,
+         V_MAX_SALARY
+    FROM EMPLOYEES E
+    JOIN JOBS J
+        ON E.JOB_ID = J.JOB_ID
+    WHERE E.EMPLOYEE_ID = P_EMPLOYEE_ID;
+
+
+    -- Count subordinates
+    SELECT COUNT(*)
+    INTO V_SUBORDINATES
+    FROM EMPLOYEES
+    WHERE MANAGER_ID = P_EMPLOYEE_ID;
+
+
+    -- Promotion conditions
+    IF MONTHS_BETWEEN(SYSDATE, V_HIRE_DATE) >= 60
+       AND V_SALARY > (V_MIN_SALARY + V_MAX_SALARY) / 2
+       AND V_SUBORDINATES >= 1
+    THEN
+        RETURN 'YES';
+    ELSE
+        RETURN 'NO';
+    END IF;
+
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Employee not found.');
+        RETURN 'NO';
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        RETURN 'NO';
+END;
+/
+
+
+
+
+-- RANK DEFINE KORTE BOLSE
+
+
+CREATE OR REPLACE PROCEDURE LOCATION_SALARY_REPORT
+IS
+    V_RANK NUMBER;
+BEGIN
+
+    FOR R IN
+    (
+        SELECT
+            L.CITY AS CITY_NAME,
+            COUNT(E.EMPLOYEE_ID) AS EMP_COUNT,
+            ROUND(AVG(E.SALARY), 2) AS AVG_SALARY,
+
+            MAX(J.JOB_TITLE)
+            KEEP (DENSE_RANK LAST ORDER BY E.SALARY)
+            AS HIGHEST_PAYING_JOB
+
+        FROM LOCATIONS L
+
+        LEFT JOIN DEPARTMENTS D
+            ON L.LOCATION_ID = D.LOCATION_ID
+
+        LEFT JOIN EMPLOYEES E
+            ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
+
+        LEFT JOIN JOBS J
+            ON E.JOB_ID = J.JOB_ID
+
+        GROUP BY L.CITY
+
+        ORDER BY
+            COUNT(E.EMPLOYEE_ID) ASC,
+            AVG(E.SALARY) DESC
+    )
+    LOOP
+
+        V_RANK := 0;
+
+        -- Count cities that come before this city
+        SELECT COUNT(*)
+        INTO V_RANK
+        FROM
+        (
+            SELECT
+                L2.CITY,
+                COUNT(E2.EMPLOYEE_ID) AS EMP_COUNT,
+                ROUND(AVG(E2.SALARY), 2) AS AVG_SALARY
+            FROM LOCATIONS L2
+
+            LEFT JOIN DEPARTMENTS D2
+                ON L2.LOCATION_ID = D2.LOCATION_ID
+
+            LEFT JOIN EMPLOYEES E2
+                ON D2.DEPARTMENT_ID = E2.DEPARTMENT_ID
+
+            GROUP BY L2.CITY
+        )
+        WHERE EMP_COUNT < R.EMP_COUNT
+           OR (
+                EMP_COUNT = R.EMP_COUNT
+                AND AVG_SALARY > R.AVG_SALARY
+              );
+
+        V_RANK := V_RANK + 1;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'Rank: ' || V_RANK ||
+            ' | City: ' || R.CITY_NAME ||
+            ' | Employees: ' || R.EMP_COUNT ||
+            ' | Average Salary: ' || R.AVG_SALARY ||
+            ' | Highest Paying Job: ' || R.HIGHEST_PAYING_JOB
+        );
+
+    END LOOP;
+
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+END;
+/
+
+
+
+
+CREATE OR REPLACE TRIGGER EMPLOYEE_TRANSFER
+AFTER UPDATE OF DEPARTMENT_ID
+ON EMPLOYEES
+FOR EACH ROW
+
+DECLARE
+    V_REPLACEMENT_ID       EMPLOYEES.EMPLOYEE_ID%TYPE;
+    V_REPLACEMENT_SALARY   EMPLOYEES.SALARY%TYPE;
+
+    V_OLD_MANAGER_COUNT    NUMBER;
+
+    V_NEW_MANAGER_ID       EMPLOYEES.EMPLOYEE_ID%TYPE;
+
+BEGIN
+
+    -- Only if the transferred employee had a manager
+    IF :OLD.MANAGER_ID IS NOT NULL THEN
+
+        SELECT EMPLOYEE_ID, SALARY
+        INTO V_REPLACEMENT_ID, V_REPLACEMENT_SALARY
+
+        FROM EMPLOYEES
+
+        WHERE MANAGER_ID = :OLD.MANAGER_ID
+          AND EMPLOYEE_ID <> :OLD.EMPLOYEE_ID
+
+        ORDER BY ABS(SALARY - :OLD.SALARY)
+
+        FETCH FIRST 1 ROW ONLY;
+
+
+        UPDATE EMPLOYEES
+
+        SET SALARY =
+            V_REPLACEMENT_SALARY + 0.5 * :OLD.SALARY
+
+        WHERE EMPLOYEE_ID = V_REPLACEMENT_ID;
+
+
+
+        SELECT COUNT(*)
+        INTO V_OLD_MANAGER_COUNT
+
+        FROM EMPLOYEES
+
+        WHERE MANAGER_ID = :OLD.MANAGER_ID;
+
+
+
+        SELECT M.EMPLOYEE_ID
+
+        INTO V_NEW_MANAGER_ID
+
+        FROM EMPLOYEES M
+
+        LEFT JOIN EMPLOYEES S
+            ON M.EMPLOYEE_ID = S.MANAGER_ID
+
+        WHERE M.DEPARTMENT_ID = :NEW.DEPARTMENT_ID
+
+        GROUP BY M.EMPLOYEE_ID
+
+        ORDER BY ABS(
+            COUNT(S.EMPLOYEE_ID) - V_OLD_MANAGER_COUNT
+        )
+
+        FETCH FIRST 1 ROW ONLY;
+        
+
+        INSERT INTO TRANSFERS
+        VALUES
+        (
+            :OLD.EMPLOYEE_ID,
+            V_REPLACEMENT_ID,
+            :NEW.DEPARTMENT_ID,
+            SYSDATE
+        );
+
+
+    END IF;
+
+
+EXCEPTION
+
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No suitable employee/manager found.');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+END;
+/
+
+
+
+
+
+
